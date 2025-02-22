@@ -1,0 +1,19 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Ставка налога на наследство
+{% endblock %}
+
+{% block content %}
+    <h3>Описание человека</h3>
+    <p>
+      У этого человека <strong>{{ size }}</strong> состояние, 
+      полученное в результате <strong>{{ origin }}</strong>.
+    </p>
+    <p>Какую ставку налога (0-100)% Вы считаете справедливой?</p>
+
+    {% formfield player.tax_rate label="" %}
+    <br>
+    <button type="submit" class="btn btn-primary">Далее</button>
+{% endblock %}

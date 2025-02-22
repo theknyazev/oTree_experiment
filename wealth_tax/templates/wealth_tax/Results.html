@@ -1,0 +1,108 @@
+{% extends "otree/page.html" %}
+{% load otree %}
+
+{% block title %}
+    Результаты
+{% endblock %}
+
+{% block content %}
+<h3>Спасибо за участие!</h3>
+<p>Эксперимент завершён!</p>
+<p>Средняя ставка налога: <strong>{{ average_tax }}%</strong></p>
+
+<hr>
+
+<h4>Диаграмма: ставка налога по каждой комбинации</h4>
+<canvas id="myBarChart" width="600" height="300"></canvas>
+
+<h4 style="margin-top: 40px;">Точечная диаграмма (Scatter)</h4>
+<canvas id="scatterChart" width="600" height="300"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const barDataStr = '{{ bar_data_json|safe }}';
+    const barData = JSON.parse(barDataStr);
+    const barLabels = barData.map(item => item.label);
+    const barValues = barData.map(item => item.tax_rate);
+    const barCtx = document.getElementById('myBarChart').getContext('2d');
+
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: barLabels,
+            datasets: [{
+                label: 'Ставка налога (%)',
+                data: barValues,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    const scatterDataStr = '{{ scatter_data_json|safe }}';
+    const scatterData = JSON.parse(scatterDataStr);
+
+    const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+    new Chart(scatterCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Зависимость налога от размера богатства',
+                data: scatterData,
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                pointStyle: 'circle',
+                pointRadius: 8,
+                pointHoverRadius: 30,
+                pointHoverColor: 'blue'
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Размер богатства (1=Небольшое, 2=Среднее, 3=Большое)'
+                    },
+                   
+                    min: 0,
+                    max: 4
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Ставка налога (%)'
+                    },
+                    min: 0,
+                    max: 120,
+                    type: 'logarithmic'
+                }
+            }
+        }
+    });
+</script>
+
+<hr>
+
+<h4>Детальный список Ваших ответов</h4>
+<ul>
+  {% for p in player.in_all_rounds %}
+    <li>
+      Раунд {{ forloop.counter }}:
+      Происхождение: <strong>{{ p.wealth_origin }}</strong>,
+      Размер: <strong>{{ p.wealth_size }}</strong>,
+      Ставка налога: <strong>{{ p.tax_rate }}%</strong>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
